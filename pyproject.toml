@@ -1,0 +1,65 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "CausVid"
+version = "0.1.0"
+description = "From Slow Bidirectional to Fast Autoregressive Video Diffusion Models"
+readme = "README.md"
+requires-python = ">=3.10,<3.11"
+dependencies = [
+    "accelerate>=1.1.1",
+    "av==13.1.0",
+    "boto3",
+    "clip",
+    "dashscope",
+    "decord",
+    "diffusers>=0.31.0",
+    "easydict",
+    "einops",
+    "flash-attn @ https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.5cxx11abiFALSE-cp310-cp310-linux_x86_64.whl ; sys_platform == 'linux' and platform_machine == 'x86_64' and python_version == '3.10'",
+    "ftfy",
+    "gradio>=5.0.0",
+    "imageio",
+    "imageio-ffmpeg",
+    "lmdb",
+    "matplotlib",
+    "moviepy==1.0.3",
+    "numpy==1.24.4",
+    "omegaconf",
+    "open-clip-torch",
+    "opencv-python>=4.9.0.80",
+    "pycocotools",
+    "pydantic",
+    "scikit-image",
+    "sentencepiece",
+    "starlette",
+    "tokenizers>=0.20.3",
+    "torch>=2.4.0",
+    "torchvision>=0.19.0",
+    "tqdm",
+    "transformers>=4.49.0",
+    "wandb",
+]
+
+[tool.uv]
+environments = [
+    "sys_platform == 'linux' and platform_machine == 'x86_64'",
+]
+
+[[tool.uv.index]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu121"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch" }
+torchvision = { index = "pytorch" }
+clip = { git = "https://github.com/openai/CLIP.git" }
+
+[tool.hatch.build.targets.wheel]
+packages = ["causvid"]
+
+[tool.hatch.metadata]
+allow-direct-references = true

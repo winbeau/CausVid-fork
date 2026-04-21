@@ -20,10 +20,20 @@ Current video diffusion models achieve impressive generation quality but struggl
 ## Environment Setup 
 
 ```bash
+uv venv --python 3.10
+source .venv/bin/activate
+uv sync
+```
+
+All commands below assume the virtual environment is active. If you prefer not to activate it, prefix commands with `uv run`, for example `uv run python minimal_inference/autoregressive_inference.py ...`.
+
+Legacy setup is still available for compatibility:
+
+```bash
 conda create -n causvid python=3.10 -y
 conda activate causvid
-pip install torch torchvision 
-pip install -r requirements.txt 
+pip install torch torchvision
+pip install -r requirements.txt
 python setup.py develop
 ```
 
@@ -159,4 +169,3 @@ If you find CausVid useful or relevant to your research, please kindly cite our 
 ## Acknowledgments
 
 Our implementation is largely based on the [Wan](https://github.com/Wan-Video/Wan2.1) model suite.
-
