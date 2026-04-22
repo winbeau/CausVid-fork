@@ -37,8 +37,8 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
             "Batch-generate long autoregressive videos with one Python worker "
-            "process per GPU. The default 123 latent frames decode to "
-            "approximately 489 RGB frames with the Wan VAE path."
+            "process per GPU. Latent frame count and output directory are "
+            "fully configurable from the CLI."
         ),
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
@@ -69,8 +69,11 @@ def parse_args() -> argparse.Namespace:
         "--output_dir",
         "--output_folder",
         dest="output_dir",
-        default="CausVid-30s",
-        help="Directory for video_XXX.mp4 outputs and prompts.csv.",
+        default=None,
+        help=(
+            "Directory for video_XXX.mp4 outputs and prompts.csv. "
+            "Defaults to CausVid-{target_latent_frames}latents."
+        ),
     )
     parser.add_argument(
         "--target-latent-frames",
@@ -80,7 +83,8 @@ def parse_args() -> argparse.Namespace:
         default=123,
         help=(
             "Number of latent frames to assemble before the final decode. "
-            "123 latent frames decode to approximately 489 RGB frames."
+            "The decoded RGB frame count is approximately "
+            "4 * target_latent_frames - 3 with this VAE path."
         ),
     )
     parser.add_argument(
@@ -151,6 +155,12 @@ def write_prompts_csv(prompts: Sequence[str], output_dir: str) -> str:
         for index, prompt in enumerate(prompts):
             writer.writerow([index, prompt])
     return output_path
+
+
+def resolve_output_dir(output_dir: str | None, target_latent_frames: int) -> str:
+    if output_dir is not None:
+        return output_dir
+    return f"CausVid-{target_latent_frames}latents"
 
 
 def resolve_gpu_ids(gpu_ids: Sequence[int] | None) -> List[int]:
@@ -369,8 +379,9 @@ def main() -> None:
     validate_args(args)
 
     prompts = read_prompts(args.prompt_file)
-    os.makedirs(args.output_dir, exist_ok=True)
-    write_prompts_csv(prompts, args.output_dir)
+    output_dir = resolve_output_dir(args.output_dir, args.target_latent_frames)
+    os.makedirs(output_dir, exist_ok=True)
+    write_prompts_csv(prompts, output_dir)
 
     gpu_ids = resolve_gpu_ids(args.gpu_ids)
     assignments = partition_prompt_indices(len(prompts), gpu_ids)
@@ -381,7 +392,7 @@ def main() -> None:
             prompts=prompts,
             config_path=args.config_path,
             checkpoint_folder=args.checkpoint_folder,
-            output_dir=args.output_dir,
+            output_dir=output_dir,
             target_latent_frames=args.target_latent_frames,
             num_overlap_frames=args.num_overlap_frames,
             fps=args.fps,

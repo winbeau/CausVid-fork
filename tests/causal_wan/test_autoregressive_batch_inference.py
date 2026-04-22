@@ -2,11 +2,12 @@ import csv
 
 import torch
 
-from minimal_inference.autoregressive_batch_30s import (
+from minimal_inference.autoregressive_batch_inference import (
     SEGMENT_LATENT_FRAMES,
     assemble_latent_segments,
     partition_prompt_indices,
     read_prompts,
+    resolve_output_dir,
     write_prompts_csv,
 )
 
@@ -34,6 +35,11 @@ def test_write_prompts_csv_preserves_index_and_order(tmp_path):
         ["1", ""],
         ["2", "gamma"],
     ]
+
+
+def test_resolve_output_dir_uses_target_latent_frames_when_not_provided():
+    assert resolve_output_dir(None, 123) == "CausVid-123latents"
+    assert resolve_output_dir("custom-dir", 123) == "custom-dir"
 
 
 def test_partition_prompt_indices_assigns_remainder_to_last_gpu():
